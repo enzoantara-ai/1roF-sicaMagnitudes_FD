@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reto de Magnitudes Físicas · Wise House School</title>
+<style>
+  :root{
+    --navy:#1B3A5C; --blue:#2E75B6; --pale:#EAF2FA; --ok:#1E8E5A; --okbg:#E3F6EC;
+    --bad:#C0392B; --badbg:#FBE9E7; --gold:#E0A100; --ink:#1f2933; --muted:#5b6672;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:"Segoe UI",Roboto,Arial,sans-serif; color:var(--ink);
+    background:linear-gradient(160deg,#dbe9f7 0%,#f5f9fd 55%,#e6f1fb 100%);
+    min-height:100vh; display:flex; align-items:flex-start; justify-content:center; padding:20px 14px 40px;
+  }
+  .app{width:100%; max-width:760px}
+  header.brand{text-align:center; margin-bottom:14px}
+  header.brand .school{font-size:.8rem; letter-spacing:.14em; text-transform:uppercase; color:var(--blue); font-weight:700}
+  header.brand h1{margin:4px 0 0; font-size:1.7rem; color:var(--navy)}
+  .card{background:#fff; border-radius:18px; padding:26px 24px; box-shadow:0 8px 28px rgba(27,58,92,.12); border:1px solid #d6e4f2}
+  .hidden{display:none !important}
+  p.lead{font-size:1.05rem; line-height:1.55; margin:0 0 14px}
+  label{font-weight:600; display:block; margin:16px 0 6px}
+  input[type=text]{width:100%; padding:12px 14px; font-size:1.05rem; border:2px solid #c3d6ea; border-radius:12px; outline:none}
+  input[type=text]:focus{border-color:var(--blue)}
+  .btn{
+    display:inline-block; border:none; cursor:pointer; font-size:1.1rem; font-weight:700; color:#fff;
+    background:var(--blue); padding:13px 26px; border-radius:12px; margin-top:18px;
+    box-shadow:0 4px 0 #1f5a91; transition:transform .06s, box-shadow .06s;
+  }
+  .btn:hover{background:#2a6aa8}
+  .btn:active{transform:translateY(3px); box-shadow:0 1px 0 #1f5a91}
+  .btn.secondary{background:#fff; color:var(--blue); border:2px solid var(--blue); box-shadow:none}
+  .rules{background:var(--pale); border-radius:12px; padding:12px 16px; margin:14px 0 0; font-size:.95rem; line-height:1.5}
+  .rules b{color:var(--navy)}
+
+  .topbar{display:flex; justify-content:space-between; align-items:center; font-weight:700; color:var(--navy); margin-bottom:8px; font-size:.98rem}
+  .progress{height:10px; background:#dbe7f3; border-radius:99px; overflow:hidden; margin-bottom:20px}
+  .progress > div{height:100%; width:0; background:linear-gradient(90deg,var(--blue),#4aa3e8); transition:width .35s}
+  .qtext{font-size:1.28rem; font-weight:700; line-height:1.4; margin:0 0 18px; color:var(--navy)}
+  .options{display:grid; gap:12px}
+  .opt{
+    display:flex; gap:12px; align-items:center; text-align:left; width:100%;
+    background:#fff; border:2px solid #c3d6ea; border-radius:14px; padding:14px 16px;
+    font-size:1.08rem; cursor:pointer; color:var(--ink); transition:border-color .12s, background .12s, transform .08s;
+  }
+  .opt:hover:not(:disabled){border-color:var(--blue); background:var(--pale)}
+  .opt .key{
+    flex:0 0 32px; height:32px; border-radius:50%; background:var(--pale); color:var(--navy);
+    display:flex; align-items:center; justify-content:center; font-weight:800; font-size:.95rem
+  }
+  .opt:disabled{cursor:default}
+  .opt.correct{border-color:var(--ok); background:var(--okbg)}
+  .opt.correct .key{background:var(--ok); color:#fff}
+  .opt.wrong{border-color:var(--bad); background:var(--badbg)}
+  .opt.wrong .key{background:var(--bad); color:#fff}
+  .opt.dim{opacity:.55}
+  .feedback{margin-top:18px; padding:14px 16px; border-radius:12px; line-height:1.5; font-size:1rem}
+  .feedback.ok{background:var(--okbg); border-left:6px solid var(--ok)}
+  .feedback.bad{background:var(--badbg); border-left:6px solid var(--bad)}
+  .feedback strong{display:block; margin-bottom:4px; font-size:1.08rem}
+
+  .result-top{text-align:center}
+  .badge{
+    width:120px; height:120px; border-radius:50%; margin:6px auto 10px; display:flex; align-items:center; justify-content:center;
+    font-size:2.6rem; font-weight:900; color:#fff; box-shadow:0 8px 20px rgba(0,0,0,.18)
+  }
+  .badge.AD{background:linear-gradient(135deg,#1E8E5A,#46c28a)}
+  .badge.A{background:linear-gradient(135deg,#2E75B6,#4aa3e8)}
+  .badge.B{background:linear-gradient(135deg,#E0A100,#f3c548)}
+  .badge.C{background:linear-gradient(135deg,#C0392B,#e5685a)}
+  .score{font-size:2rem; font-weight:800; color:var(--navy); margin:4px 0}
+  .msg{font-size:1.08rem; line-height:1.5; margin:6px 0 4px}
+  .review{margin-top:20px; text-align:left}
+  .review h3{margin:0 0 10px; color:var(--navy)}
+  .rev-item{background:var(--badbg); border-left:6px solid var(--bad); border-radius:10px; padding:10px 14px; margin-bottom:10px; font-size:.97rem; line-height:1.45}
+  .rev-item .q{font-weight:700}
+  .rev-item .a{color:var(--ok); font-weight:700}
+  .proof{margin-top:18px; font-size:.9rem; color:var(--muted); text-align:center}
+  .actions{display:flex; gap:12px; flex-wrap:wrap; justify-content:center}
+
+  .confetti{position:fixed; top:-12px; width:10px; height:14px; z-index:50; animation:fall linear forwards; pointer-events:none}
+  @keyframes fall{to{transform:translateY(105vh) rotate(720deg); opacity:.9}}
+  @media (max-width:520px){
+    .card{padding:20px 16px}
+    header.brand h1{font-size:1.4rem}
+    .qtext{font-size:1.15rem}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="brand">
+    <div class="school">I.E.P. Wise House School · Ciencia y Tecnología</div>
+    <h1>⚛️ Reto de Magnitudes Físicas</h1>
+  </header>
+
+  <!-- PANTALLA INICIO -->
+  <section id="screen-start" class="card">
+    <p class="lead">¡Hola, científico o científica! Tienes <b>10 preguntas</b> sobre medición, magnitudes fundamentales y derivadas, escalares y vectoriales.</p>
+    <div class="rules">
+      <b>Cómo se juega:</b><br>
+      • Elige una respuesta (también puedes usar las teclas <b>1, 2, 3 y 4</b>).<br>
+      • Verás al instante si acertaste y <b>por qué</b>.<br>
+      • Al final recibirás tu nivel de logro: <b>AD, A, B o C</b>.<br>
+      • Puedes jugar <b>todas las veces que quieras</b>: las preguntas cambian de orden cada vez.
+    </div>
+    <label for="nombre">Escribe tu nombre (opcional):</label>
+    <input id="nombre" type="text" maxlength="40" placeholder="Ej.: Ana Torres" autocomplete="off">
+    <button class="btn" id="btn-start">¡Empezar el reto!</button>
+  </section>
+
+  <!-- PANTALLA PREGUNTA -->
+  <section id="screen-quiz" class="card hidden">
+    <div class="topbar">
+      <span id="qcount">Pregunta 1 de 10</span>
+      <span id="qscore">⭐ 0</span>
+    </div>
+    <div class="progress"><div id="bar"></div></div>
+    <p class="qtext" id="qtext"></p>
+    <div class="options" id="options"></div>
+    <div id="feedback" class="feedback hidden" role="status" aria-live="polite"></div>
+    <div style="text-align:right">
+      <button class="btn hidden" id="btn-next">Siguiente →</button>
+    </div>
+  </section>
+
+  <!-- PANTALLA RESULTADO -->
+  <section id="screen-result" class="card hidden">
+    <div class="result-top">
+      <div id="badge" class="badge">AD</div>
+      <div id="who" class="msg"></div>
+      <div class="score" id="final-score"></div>
+      <div class="msg" id="final-msg"></div>
+    </div>
+    <div class="review" id="review"></div>
+    <div class="proof" id="proof"></div>
+    <div class="actions">
+      <button class="btn" id="btn-again">🔄 Jugar otra vez</button>
+    </div>
+  </section>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ====== BANCO DE PREGUNTAS (10) ======
+  // La primera opción de cada pregunta es la correcta; el juego las mezcla al mostrarlas.
+  var QUESTIONS = [
+    { q:"¿Cuál de las siguientes NO es una magnitud física?",
+      opts:["Felicidad","Velocidad","Masa","Longitud"],
+      why:"La felicidad no se puede medir asignándole un número y una unidad. Una magnitud es todo aquello que sí se puede medir." },
+    { q:"Medir es…",
+      opts:["comparar una magnitud con otra que se toma como patrón universalmente aceptado","adivinar cuánto vale una propiedad usando la mano o el pie","escribir un número sin ninguna unidad","dibujar el objeto a escala"],
+      why:"Medir es comparar con un patrón aceptado por todos. Por eso el palmo de cada persona no sirve como patrón: no es universal ni invariable." },
+    { q:"Según el Sistema Internacional (SI), ¿cuántas magnitudes fundamentales existen?",
+      opts:["7","5","10","12"],
+      why:"El SI tiene 7 magnitudes fundamentales: longitud, masa, tiempo, intensidad de corriente eléctrica, temperatura, intensidad luminosa y cantidad de sustancia." },
+    { q:"¿Cuál es la unidad de base de la MASA en el SI?",
+      opts:["Kilogramo (kg)","Gramo (g)","Libra (lb)","Newton (N)"],
+      why:"En el SI la unidad base de la masa es el kilogramo. El newton es la unidad de la fuerza, que es una magnitud derivada." },
+    { q:"¿Cuál de estas magnitudes es DERIVADA?",
+      opts:["Área","Tiempo","Longitud","Temperatura"],
+      why:"El área se expresa en función de la longitud (m²), por eso es derivada. Tiempo, longitud y temperatura son fundamentales." },
+    { q:"¿Cuál de estas medidas está escrita correctamente según el SI?",
+      opts:["4 A","8 mts","5 seg","7 kgs"],
+      why:"Los símbolos del SI no llevan punto ni «s» de plural: se escribe 8 m, 5 s y 7 kg. Y el amperio se escribe con A mayúscula." },
+    { q:"¿Qué dos unidades base del SI se escriben con símbolo en MAYÚSCULA porque llevan el apellido de un científico?",
+      opts:["Amperio (A) y kelvin (K)","Metro (m) y segundo (s)","Kilogramo (kg) y mol (mol)","Candela (cd) y metro (m)"],
+      why:"El amperio (A) y el kelvin (K) tienen nombre de científicos, por eso su símbolo va con letra mayúscula." },
+    { q:"¿Cuál de las siguientes es una magnitud VECTORIAL?",
+      opts:["Fuerza","Masa","Tiempo","Temperatura"],
+      why:"La fuerza necesita valor, unidad y dirección. Masa, tiempo y temperatura quedan determinadas con solo el número y la unidad (son escalares)." },
+    { q:"Un auto viaja a 60 km/h. Para describir completamente su velocidad, ¿qué dato falta?",
+      opts:["La dirección hacia donde se mueve","La masa del auto","El color del auto","Nada: con 60 km/h ya está completa"],
+      why:"La velocidad es una magnitud vectorial: además del valor y la unidad necesita dirección. Es lo mismo que la flecha de F = 5 N en la ficha." },
+    { q:"Indica la relación CORRECTA entre magnitud y unidad del SI:",
+      opts:["Densidad – kg/m³","Fuerza – s","Tiempo – kg/m³","Área – N"],
+      why:"La densidad es masa entre volumen, y se mide en kg/m³. La fuerza se mide en newton (N), el tiempo en segundos (s) y el área en m²." }
+  ];
+
+  var TOTAL = QUESTIONS.length;
+
+  // ====== UTILIDADES ======
+  function $(id){ return document.getElementById(id); }
+  function shuffle(arr){
+    var a = arr.slice();
+    for (var i=a.length-1; i>0; i--){
+      var j = Math.floor(Math.random()*(i+1));
+      var t=a[i]; a[i]=a[j]; a[j]=t;
+    }
+    return a;
+  }
+  function show(id){
+    ["screen-start","screen-quiz","screen-result"].forEach(function(s){
+      $(s).classList.toggle("hidden", s!==id);
+    });
+    window.scrollTo(0,0);
+  }
+  function level(score){
+    if (score>=9) return {code:"AD", txt:"¡Logro destacado! Dominas el tema de las magnitudes físicas. 🏆"};
+    if (score>=7) return {code:"A",  txt:"¡Logro esperado! Vas muy bien; repasa los errores y llegarás a AD. 💪"};
+    if (score>=5) return {code:"B",  txt:"En proceso. Revisa tu ficha y el mapa conceptual, y vuelve a intentarlo. 📘"};
+    return {code:"C", txt:"Estás empezando. Lee de nuevo la ficha, mira el mapa conceptual y juega otra vez: ¡tú puedes! 🌱"};
+  }
+
+  // ====== ESTADO ======
+  var order = [], idx = 0, score = 0, answered = false, current = null, misses = [], playerName = "";
+
+  function start(){
+    playerName = $("nombre").value.trim();
+    order = shuffle(QUESTIONS.map(function(_,i){return i;}));
+    idx = 0; score = 0; misses = [];
+    show("screen-quiz");
+    render();
+  }
+
+  function render(){
+    answered = false;
+    var q = QUESTIONS[order[idx]];
+    var opts = shuffle(q.opts.map(function(t,i){ return {text:t, ok:i===0}; }));
+    current = {q:q, opts:opts};
+    $("qcount").textContent = "Pregunta " + (idx+1) + " de " + TOTAL;
+    $("qscore").textContent = "⭐ " + score;
+    $("bar").style.width = (idx/TOTAL*100) + "%";
+    $("qtext").textContent = q.q;
+    var box = $("options"); box.innerHTML = "";
+    opts.forEach(function(o,i){
+      var b = document.createElement("button");
+      b.className = "opt"; b.type = "button";
+      var k = document.createElement("span"); k.className = "key"; k.textContent = i+1;
+      var t = document.createElement("span"); t.textContent = o.text;
+      b.appendChild(k); b.appendChild(t);
+      b.addEventListener("click", function(){ choose(i); });
+      box.appendChild(b);
+    });
+    $("feedback").classList.add("hidden");
+    $("btn-next").classList.add("hidden");
+    $("btn-next").textContent = (idx===TOTAL-1) ? "Ver mi resultado 🏁" : "Siguiente →";
+  }
+
+  function choose(i){
+    if (answered) return;
+    answered = true;
+    var picked = current.opts[i];
+    var buttons = $("options").querySelectorAll(".opt");
+    buttons.forEach(function(b,j){
+      b.disabled = true;
+      if (current.opts[j].ok) b.classList.add("correct");
+      else if (j===i) b.classList.add("wrong");
+      else b.classList.add("dim");
+    });
+    var fb = $("feedback");
+    fb.classList.remove("hidden","ok","bad");
+    var right = current.opts.filter(function(o){return o.ok;})[0].text;
+    if (picked.ok){
+      score++;
+      fb.classList.add("ok");
+      fb.innerHTML = "<strong>✅ ¡Correcto!</strong>";
+    } else {
+      fb.classList.add("bad");
+      fb.innerHTML = "<strong>❌ Todavía no.</strong>";
+      misses.push({q:current.q.q, a:right, why:current.q.why});
+    }
+    var p = document.createElement("span"); p.textContent = current.q.why; fb.appendChild(p);
+    $("qscore").textContent = "⭐ " + score;
+    $("bar").style.width = ((idx+1)/TOTAL*100) + "%";
+    $("btn-next").classList.remove("hidden");
+    $("btn-next").focus();
+  }
+
+  function next(){
+    if (!answered) return;
+    idx++;
+    if (idx>=TOTAL) finish(); else render();
+  }
+
+  function finish(){
+    var lv = level(score);
+    show("screen-result");
+    var badge = $("badge"); badge.className = "badge " + lv.code; badge.textContent = lv.code;
+    $("who").textContent = playerName ? ("¡Buen trabajo, " + playerName + "!") : "¡Buen trabajo!";
+    $("final-score").textContent = score + " / " + TOTAL + " respuestas correctas";
+    $("final-msg").textContent = lv.txt;
+
+    var rev = $("review"); rev.innerHTML = "";
+    if (misses.length){
+      var h = document.createElement("h3"); h.textContent = "Repasa estas preguntas:"; rev.appendChild(h);
+      misses.forEach(function(m){
+        var d = document.createElement("div"); d.className = "rev-item";
+        var q = document.createElement("div"); q.className = "q"; q.textContent = m.q;
+        var a = document.createElement("div"); a.innerHTML = "Respuesta correcta: ";
+        var s = document.createElement("span"); s.className = "a"; s.textContent = m.a; a.appendChild(s);
+        var w = document.createElement("div"); w.textContent = m.why;
+        d.appendChild(q); d.appendChild(a); d.appendChild(w); rev.appendChild(d);
+      });
+    } else {
+      var h2 = document.createElement("h3"); h2.textContent = "¡Sin errores! Respondiste todo bien. 🎉"; rev.appendChild(h2);
+    }
+    var now = new Date();
+    $("proof").textContent = "Si tu profesor lo pide, muestra esta pantalla · " +
+      now.toLocaleDateString("es-PE") + " " + now.toLocaleTimeString("es-PE",{hour:"2-digit",minute:"2-digit"});
+    if (lv.code==="AD") confetti();
+  }
+
+  function confetti(){
+    var colors = ["#2E75B6","#1E8E5A","#E0A100","#C25E12","#4aa3e8","#C0392B"];
+    for (var i=0;i<60;i++){
+      var c = document.createElement("div");
+      c.className = "confetti";
+      c.style.left = Math.random()*100 + "vw";
+      c.style.background = colors[i % colors.length];
+      c.style.animationDuration = (2.2 + Math.random()*2.2) + "s";
+      c.style.animationDelay = (Math.random()*0.6) + "s";
+      document.body.appendChild(c);
+      (function(el){ setTimeout(function(){ el.remove(); }, 5500); })(c);
+    }
+  }
+
+  // ====== EVENTOS ======
+  $("btn-start").addEventListener("click", start);
+  $("btn-next").addEventListener("click", next);
+  $("btn-again").addEventListener("click", function(){ show("screen-start"); });
+  $("nombre").addEventListener("keydown", function(e){ if (e.key==="Enter") start(); });
+  document.addEventListener("keydown", function(e){
+    if ($("screen-quiz").classList.contains("hidden")) return;
+    if (!answered && e.key>="1" && e.key<="4"){ choose(parseInt(e.key,10)-1); }
+    else if (answered && (e.key==="Enter" || e.key==="ArrowRight")){ next(); }
+  });
+})();
+</script>
+</body>
+</html>
